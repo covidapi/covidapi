@@ -1,0 +1,224 @@
+openapi: 3.0.0
+info:
+  title: Covid Data API
+  version: '1.0'
+  description: |
+    The COVID-19 Data API (covidapi.site) provides up-to-date statistics with country (global), state-level (US only), and county-level (US only) confirmed cases and deaths information.
+
+
+    #### Operations
+    - [/data](./CovidAPI.site.v1.yaml/paths/~1data/get)
+servers:
+  - url: 'https://api.covidAPI.site/v1'
+paths:
+  /data:
+    get:
+      summary: data
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response-COVID-Data'
+              examples:
+                Example (200-OK):
+                  value:
+                    statusCode: 200
+                    statusMessage: Success
+                    query: San Ramon Valley Fire Protection Disctrict
+                    address: '1500 Bollinger Canyon Rd, San Ramon, CA 94583, USA'
+                    date: '2020-05-18'
+                    last_update: '2020-05-18T17:24:58Z'
+                    iso: USA
+                    country:
+                      country: United States of America
+                      country_code: US
+                      confirmed: 1486757
+                      deaths: 89562
+                      confirmed_diff: 18937
+                      deaths_diff: 808
+                    state:
+                      state: California
+                      confirmed: 80166
+                      deaths: 3240
+                      confirmed_diff: 1441
+                      deaths_diff: 32
+                    county:
+                      county: Contra Costa
+                      confirmed: 1146
+                      deaths: 33
+                      confirmed_diff: 25
+                      deaths_diff: 0
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response-Error-Data'
+              examples:
+                Example (400-ValidationError:
+                  value:
+                    statusCode: 400
+                    statusMessage: ValidationError
+                    message: 'Bad Request: Address is required.'
+        '429':
+          description: Too Many Requests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response-Error-Data'
+      operationId: get-v1-data
+      description: 'Up-to-date COVID-19 statistics with information at the Country-level (globally), State-Level (US) and County-Level (US).'
+      parameters:
+        - schema:
+            type: string
+          in: query
+          name: q
+          description: 'A query which can contain a global address, location or place name.'
+          required: true
+components:
+  schemas:
+    Response-COVID-Data:
+      title: Response COVID Data Schema
+      type: object
+      description: COVID Data contained in a successful response
+      x-examples:
+        Example:
+          statusCode: 200
+          statusMessage: Success
+          query: New York City Fire Department
+          address: '503 W 139th St, New York, NY 10031, USA'
+          date: '2020-05-17'
+          last_update: '2020-05-17T18:57:40Z'
+          iso: USA
+          country:
+            country: United States of America
+            country_code: US
+            confirmed: 1467820
+            deaths: 88754
+            confirmed_diff: 24996
+            deaths_diff: 1224
+          state:
+            state: New York
+            confirmed: 348232
+            deaths: 28049
+            confirmed_diff: 2419
+            deaths_diff: 171
+          county:
+            county: New York City
+            confirmed: 191600
+            deaths: 20576
+            confirmed_diff: 1243
+            deaths_diff: 100
+      properties:
+        statusCode:
+          type: number
+          description: HTTP Status Code
+        statusMessage:
+          type: string
+          description: Status message
+        query:
+          type: string
+          description: "The sumbitted query 'q' in the querystring parameter"
+        address:
+          type: string
+          description: Formatted global address
+        date:
+          type: string
+          description: Date for the statistics provided
+        last_updated:
+          type: string
+          description: Last updated date and time for the information
+        iso:
+          type: string
+          description: ISO 3166-1 alpha-3 country code
+        country:
+          type: object
+          description: Country-level statistics
+          properties:
+            country:
+              type: string
+              description: Country name
+            countrycode:
+              type: string
+              description: ISO 3166-1 alpha-2 country code
+            confirmed:
+              type: string
+              description: 'Total number of confirmed cases as of "last_updated"'
+            deaths:
+              type: string
+              description: 'Total number of deaths as of "last_updated"'
+            confirmed_diff:
+              type: string
+              description: 'Difference in the total number of confirmed cases between yesterday and today based on "date"'
+            deaths_diff:
+              type: string
+              description: 'Difference in the total number of deaths between yesterday and today based on "date"'
+        state:
+          type: object
+          description: State-level statistics
+          properties:
+            state:
+              type: string
+              description: State name
+            confirmed:
+              type: string
+              description: 'Total number of confirmed cases as of "last_updated"'
+            deaths:
+              type: string
+              description: 'Total number of deaths as of "last_updated"'
+            confirmed_diff:
+              type: string
+              description: 'Difference in the total number of confirmed cases between yesterday and today based on "date"'
+            deaths_diff:
+              type: string
+              description: 'Difference in the total number of deaths between yesterday and today based on "date"'
+        county:
+          type: object
+          description: County-level statistics
+          properties:
+            county:
+              type: string
+              description: County name
+            confirmed:
+              type: string
+              description: 'Total number of confirmed cases as of "last_updated"'
+            deaths:
+              type: string
+              description: 'Total number of deaths as of "last_updated"'
+            confirmed_diff:
+              type: string
+              description: 'Difference in the total number of confirmed cases between yesterday and today based on "date"'
+            death_diff:
+              type: string
+              description: 'Difference in the total number of deaths between yesterday and today based on "date"'
+    Response-Error-Data:
+      title: Response Error Data Schema
+      type: object
+      description: COVID-Data Error Response Schema
+      properties:
+        statusCode:
+          type: number
+          description: HTTP Status Code
+        statusMessage:
+          type: string
+          description: Status message
+        query:
+          type: string
+          description: "The sumbitted query 'q' in the querystring parameter"
+        message:
+          type: string
+          description: Descriptive error message
+      x-examples:
+        Example:
+          statusCode: 400
+          statusMessage: ValidationError
+          message: "Querystring parameter 'q' (query) is required."
+  securitySchemes:
+    apiKey:
+      name: apikey
+      type: apiKey
+      in: header
+      description: A provided API Key
+security: []
